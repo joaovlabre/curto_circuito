@@ -113,10 +113,10 @@ class NetworkPanel(QWidget):
         dlg = TransformerDialog(parent=self)
         if dlg.exec():
             comp = dlg.get_component()
-            # nó de chegada (secundário do trafo)
+            # nó de chegada (secundário / BT do trafo)
             child_node = NetworkNode(
                 id=f"BUS_{comp.id}",
-                name=f"Barra {comp.name} (BT)",
+                name=f"Barra {comp.name} — {comp.un2_kv} kV (Sec.)",
                 un_kv=comp.un2_kv,
             )
             self.network.nodes[child_node.id] = child_node
