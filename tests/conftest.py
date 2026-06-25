@@ -23,7 +23,7 @@ def simple_network():
     trafo = Transformer(
         id="T1", name="Trafo T1",
         sn_mva=0.63, un1_kv=13.8, un2_kv=0.4,
-        uk_pct=4.0, pk_kw=6.0,
+        z_pct=4.0, pk_kw=6.0,
         vector_group="Dyn11",
     )
     n_bt = NetworkNode(id="BUS_BT", name="Barra BT", un_kv=0.4)

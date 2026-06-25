@@ -31,7 +31,7 @@ def transformer_z1(t: Transformer) -> complex:
     sn_va = mva_to_va(t.sn_mva)
     pk_w = t.pk_kw * 1e3
 
-    zt_mag = (t.uk_pct / 100.0) * un2_v**2 / sn_va
+    zt_mag = (t.z_pct / 100.0) * un2_v**2 / sn_va   # Z% → Ω
     rt = pk_w * un2_v**2 / sn_va**2
     # garante que RT ≤ ZT (arredondamentos numéricos)
     rt = min(rt, zt_mag)

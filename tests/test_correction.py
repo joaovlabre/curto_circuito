@@ -9,7 +9,7 @@ from curto_circuito.engine.impedance import transformer_z1
 
 def test_kt_formula():
     """KT = 0,95 * cmax / (1 + 0,6 * xT)."""
-    t = Transformer(id="T", name="T", sn_mva=0.63, un1_kv=13.8, un2_kv=0.4, uk_pct=4.0, pk_kw=6.0)
+    t = Transformer(id="T", name="T", sn_mva=0.63, un1_kv=13.8, un2_kv=0.4, z_pct=4.0, pk_kw=6.0)
     cmax = 1.10
     kt = kt_factor(t, cmax)
     z = transformer_z1(t)

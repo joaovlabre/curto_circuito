@@ -30,7 +30,7 @@ class Transformer:
     sn_mva: float         # potência nominal (MVA)
     un1_kv: float         # tensão nominal primário (kV)
     un2_kv: float         # tensão nominal secundário (kV)
-    uk_pct: float         # tensão de curto-circuito (%)
+    z_pct: float         # impedância de curto-circuito (%)
     pk_kw: float          # perdas em carga na corrente nominal (kW)
     vector_group: str = "Dyn11"   # grupo vetorial; afeta caminho de Z0
     grounding: str = "solid"      # aterramento do neutro: "solid", "resistance", "isolated"
@@ -38,8 +38,8 @@ class Transformer:
     def __post_init__(self) -> None:
         if self.sn_mva <= 0:
             raise ValueError("sn_mva deve ser positivo")
-        if self.uk_pct <= 0:
-            raise ValueError("uk_pct deve ser positivo")
+        if self.z_pct <= 0:
+            raise ValueError("z_pct (Z%) deve ser positivo")
         if self.pk_kw < 0:
             raise ValueError("pk_kw não pode ser negativo")
 

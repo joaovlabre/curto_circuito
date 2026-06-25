@@ -148,7 +148,7 @@ Selecione o nó MT na árvore → clique em **`+ Trafo`**:
 | Sn (MVA) | Potência nominal | `0,630` |
 | Un1 (kV) | Tensão do primário | `13,8` |
 | Un2 (kV) | Tensão do secundário | `0,4` |
-| uk% | Tensão de curto-circuito | `4,0` |
+| Z% | Impedância de curto-circuito | `4,0` |
 | Pk (kW) | Perdas em carga (corrente nominal) | `6,0` |
 | Grupo vetorial | Define o caminho da seq. zero | `Dyn11` |
 | Aterramento | Tipo de aterramento do neutro | `solid` |
@@ -317,7 +317,7 @@ A IEC 60909 substitui a tensão real pré-falta pela **tensão equivalente de cu
 
 **Transformador:**
 ```
-ZT = (uk% / 100) × Un2² / Sn
+ZT = (Z% / 100) × Un2² / Sn
 RT = Pk × Un2² / Sn²
 XT = √(ZT² − RT²)
 KT = 0,95 × cmax / (1 + 0,6 × xT)   [fator de correção IEC]

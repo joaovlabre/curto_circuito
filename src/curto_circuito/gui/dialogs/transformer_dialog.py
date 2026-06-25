@@ -33,7 +33,7 @@ class TransformerDialog(QDialog):
         form.addRow("Potência nominal Sn:", self.sb_sn)
         form.addRow("Tensão primário Un1:", self.sb_un1)
         form.addRow("Tensão secundário Un2:", self.sb_un2)
-        form.addRow("Tensão CC uk%:", self.sb_uk)
+        form.addRow("Impedância Z%:", self.sb_uk)
         form.addRow("Perdas em carga Pk:", self.sb_pk)
         form.addRow("Grupo vetorial:", self.cb_vg)
         form.addRow("Aterramento neutro:", self.cb_gnd)
@@ -53,7 +53,7 @@ class TransformerDialog(QDialog):
         self.sb_sn.setValue(c.sn_mva)
         self.sb_un1.setValue(c.un1_kv)
         self.sb_un2.setValue(c.un2_kv)
-        self.sb_uk.setValue(c.uk_pct)
+        self.sb_uk.setValue(c.z_pct)
         self.sb_pk.setValue(c.pk_kw)
         idx = self.cb_vg.findText(c.vector_group)
         if idx >= 0:
@@ -69,7 +69,7 @@ class TransformerDialog(QDialog):
             sn_mva=self.sb_sn.value(),
             un1_kv=self.sb_un1.value(),
             un2_kv=self.sb_un2.value(),
-            uk_pct=self.sb_uk.value(),
+            z_pct=self.sb_uk.value(),
             pk_kw=self.sb_pk.value(),
             vector_group=self.cb_vg.currentText(),
             grounding=self.cb_gnd.currentText(),

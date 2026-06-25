@@ -26,7 +26,7 @@ def test_grid_z1_magnitude():
 
 def test_transformer_z1_magnitude():
     """ZT = (uk%/100) * Un2² / Sn  (eq. IEC 60909 §3.3.1)."""
-    t = Transformer(id="T", name="T", sn_mva=0.63, un1_kv=13.8, un2_kv=0.4, uk_pct=4.0, pk_kw=6.0)
+    t = Transformer(id="T", name="T", sn_mva=0.63, un1_kv=13.8, un2_kv=0.4, z_pct=4.0, pk_kw=6.0)
     z = transformer_z1(t)
     un2_v = kv_to_v(0.4)
     sn_va = mva_to_va(0.63)
@@ -36,7 +36,7 @@ def test_transformer_z1_magnitude():
 
 def test_transformer_z1_rt():
     """RT = Pk * Un2² / Sn²."""
-    t = Transformer(id="T", name="T", sn_mva=0.63, un1_kv=13.8, un2_kv=0.4, uk_pct=4.0, pk_kw=6.0)
+    t = Transformer(id="T", name="T", sn_mva=0.63, un1_kv=13.8, un2_kv=0.4, z_pct=4.0, pk_kw=6.0)
     z = transformer_z1(t)
     un2_v = kv_to_v(0.4)
     sn_va = mva_to_va(0.63)
