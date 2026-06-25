@@ -22,6 +22,9 @@ def test_roundtrip_json(simple_network):
         orig_comp = simple_network.nodes["GRID1"].component
         loaded_comp = loaded.nodes["GRID1"].component
         assert loaded_comp.un_kv == orig_comp.un_kv
-        assert loaded_comp.sk_mva == orig_comp.sk_mva
+        assert loaded_comp.z1_r_mohm == orig_comp.z1_r_mohm
+        assert loaded_comp.z1_x_mohm == orig_comp.z1_x_mohm
+        assert loaded_comp.z0_r_mohm == orig_comp.z0_r_mohm
+        assert loaded_comp.z0_x_mohm == orig_comp.z0_x_mohm
     finally:
         path.unlink(missing_ok=True)

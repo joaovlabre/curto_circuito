@@ -7,21 +7,33 @@ from curto_circuito.engine.impedance import grid_z1, transformer_z1, cable_z1, c
 from curto_circuito.utils.units import kv_to_v, mva_to_va
 
 
-def test_grid_z1_infinite_bus():
-    g = GridConnection(id="G", name="G", un_kv=13.8, sk_mva=0, rx_ratio=0.1)
+def test_grid_z1_zero_impedance():
+    """R1=X1=0 → Z1 nulo (barra infinita)."""
+    g = GridConnection(id="G", name="G", un_kv=13.8,
+                       z1_r_mohm=0, z1_x_mohm=0, z0_r_mohm=0, z0_x_mohm=0)
     z = grid_z1(g)
     assert z == complex(0, 0)
 
 
 def test_grid_z1_magnitude():
-    """Z_grid = Un² / Sk'' para razão R/X=0 (puramente reativo)."""
-    un_kv = 13.8
-    sk_mva = 500.0
-    g = GridConnection(id="G", name="G", un_kv=un_kv, sk_mva=sk_mva, rx_ratio=0.0)
+    """Z1 armazenado em mΩ deve ser retornado em Ω com parte real e imaginária corretas."""
+    g = GridConnection(id="G", name="G", un_kv=13.8,
+                       z1_r_mohm=37.9, z1_x_mohm=379.0,
+                       z0_r_mohm=37.9, z0_x_mohm=379.0)
     z = grid_z1(g)
-    z_expected = kv_to_v(un_kv)**2 / mva_to_va(sk_mva)
-    assert abs(abs(z) - z_expected) < 1e-6
-    assert z.real == pytest.approx(0.0, abs=1e-9)   # R/X=0 → só reatância
+    assert z.real == pytest.approx(0.0379, rel=1e-4)
+    assert z.imag == pytest.approx(0.3790, rel=1e-4)
+
+
+def test_grid_z0_independent():
+    """Z0 deve ser independente de Z1."""
+    g = GridConnection(id="G", name="G", un_kv=13.8,
+                       z1_r_mohm=10.0, z1_x_mohm=100.0,
+                       z0_r_mohm=30.0, z0_x_mohm=300.0)
+    from curto_circuito.engine.impedance import grid_z0
+    z0 = grid_z0(g)
+    assert z0.real == pytest.approx(0.030, rel=1e-4)
+    assert z0.imag == pytest.approx(0.300, rel=1e-4)
 
 
 def test_transformer_z1_magnitude():

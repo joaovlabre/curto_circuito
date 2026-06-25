@@ -7,19 +7,17 @@ class GridConnection:
     """Ponto de conexão com a rede da concessionária (fonte)."""
     id: str
     name: str
-    un_kv: float          # tensão nominal fase-fase (kV)
-    sk_mva: float         # potência de curto-circuito inicial (MVA); 0 = barra infinita
-    rx_ratio: float       # razão R/X da rede
-    cmax: float = 1.1     # fator de tensão máximo (IEC 60909 Tabela 1)
-    cmin: float = 0.95    # fator de tensão mínimo
+    un_kv: float           # tensão nominal fase-fase (kV)
+    z1_r_mohm: float       # resistência seq. positiva Z1 (mΩ)
+    z1_x_mohm: float       # reatância seq. positiva Z1 (mΩ)
+    z0_r_mohm: float       # resistência seq. zero Z0 (mΩ)
+    z0_x_mohm: float       # reatância seq. zero Z0 (mΩ)
+    cmax: float = 1.1      # fator de tensão máximo (IEC 60909 Tabela 1)
+    cmin: float = 0.95     # fator de tensão mínimo
 
     def __post_init__(self) -> None:
         if self.un_kv <= 0:
             raise ValueError("un_kv deve ser positivo")
-        if self.sk_mva < 0:
-            raise ValueError("sk_mva não pode ser negativo")
-        if self.rx_ratio < 0:
-            raise ValueError("rx_ratio não pode ser negativo")
 
 
 @dataclass

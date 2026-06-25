@@ -15,10 +15,34 @@ def _comp_to_dict(comp) -> dict | None:
     return d
 
 
+def _migrate_grid(d: dict) -> dict:
+    """Converte formato antigo (sk_mva, rx_ratio) para Z1/Z0 (mΩ)."""
+    if "z1_r_mohm" in d:
+        return d   # já no novo formato
+    import math
+    sk_mva = d.pop("sk_mva", 0.0)
+    rx_ratio = d.pop("rx_ratio", 0.1)
+    un_kv = d.get("un_kv", 13.8)
+    if sk_mva > 0:
+        un_v = un_kv * 1e3
+        z_mag = un_v**2 / (sk_mva * 1e6)
+        x1 = z_mag / math.sqrt(rx_ratio**2 + 1)
+        r1 = rx_ratio * x1
+    else:
+        r1, x1 = 0.0, 0.0
+    d["z1_r_mohm"] = round(r1 * 1000, 4)
+    d["z1_x_mohm"] = round(x1 * 1000, 4)
+    d["z0_r_mohm"] = round(r1 * 1000, 4)   # Z0 = Z1 como estimativa
+    d["z0_x_mohm"] = round(x1 * 1000, 4)
+    return d
+
+
 def _dict_to_comp(d: dict):
     if d is None:
         return None
     t = d.pop("_type")
+    if t == "GridConnection":
+        d = _migrate_grid(d)
     classes = {
         "GridConnection": GridConnection,
         "Transformer": Transformer,
