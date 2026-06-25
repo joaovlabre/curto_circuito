@@ -16,7 +16,7 @@ def test_study_all_fault_types(simple_network):
     results = run_study(simple_network)
     for bus_result in results.buses:
         types = {f.fault_type for f in bus_result.faults}
-        assert {"3F", "2F", "1F-T", "2F-T"} == types
+        assert {"3F", "3F-T", "2F", "1F-T", "2F-T"} == types
 
 
 def test_study_ik3_decreases_downstream_same_voltage(simple_network):

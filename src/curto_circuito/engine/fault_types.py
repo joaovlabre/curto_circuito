@@ -80,6 +80,26 @@ def fault_1ph(c: float, un_kv: float, z1: complex, z0: complex) -> FaultResult:
     )
 
 
+def fault_3ph_earth(c: float, un_kv: float, z1: complex, z0: complex) -> FaultResult:
+    """Curto-circuito trifásico com terra (3F-T).
+    Para redes passivas simétricas as correntes de fase são iguais ao 3F.
+    A corrente de neutro/terra 3·I0 = 0 pela simetria (I_a+I_b+I_c = 0).
+    IEC 60909 §4.2 — distingue-se do 3F quando geradores estão presentes.
+    """
+    ik = _ik_from_z(c, un_kv, z1)
+    kappa = kappa_factor(z1)
+    ip_ka = kappa * math.sqrt(2) * ik
+    return FaultResult(
+        fault_type="3F-T",
+        ik_pp_ka=ik,
+        ip_ka=ip_ka,
+        ib_ka=ik,
+        kappa=kappa,
+        z1_ohm=z1,
+        z0_ohm=z0,
+    )
+
+
 def fault_2ph_earth(c: float, un_kv: float, z1: complex, z0: complex) -> FaultResult:
     """Curto-circuito bifásico com terra (2F-T).
     IEC 60909 eq. (31): corrente na fase em falta

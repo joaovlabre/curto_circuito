@@ -14,7 +14,7 @@ from ..utils.units import refer_impedance
 from . import impedance as imp
 from .reduction import build_z1_thevenin
 from .sequence import build_z0_thevenin
-from .fault_types import fault_3ph, fault_2ph, fault_1ph, fault_2ph_earth
+from .fault_types import fault_3ph, fault_2ph, fault_1ph, fault_2ph_earth, fault_3ph_earth
 
 
 def run_study(network: Network, use_cmax: bool = True) -> StudyResults:
@@ -55,6 +55,7 @@ def run_study(network: Network, use_cmax: bool = True) -> StudyResults:
 
         faults = [
             fault_3ph(c, node.un_kv, z1),
+            fault_3ph_earth(c, node.un_kv, z1, z0),
             fault_2ph(c, node.un_kv, z1),
             fault_1ph(c, node.un_kv, z1, z0),
             fault_2ph_earth(c, node.un_kv, z1, z0),

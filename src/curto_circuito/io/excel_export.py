@@ -8,10 +8,11 @@ from openpyxl.utils import get_column_letter
 from ..models.network import Network
 from ..models.results import StudyResults
 
-
 _HEADER_FILL = PatternFill("solid", fgColor="1F497D")
 _HEADER_FONT = Font(bold=True, color="FFFFFF")
-_WARN_FILL = PatternFill("solid", fgColor="FFEB9C")
+_MT_FILL = PatternFill("solid", fgColor="D6E4F0")
+_BT_FILL = PatternFill("solid", fgColor="D5F5E3")
+_MT_THRESHOLD_KV = 1.0
 
 
 def _header_row(ws, values: list[str]) -> None:
@@ -19,7 +20,15 @@ def _header_row(ws, values: list[str]) -> None:
     for cell in ws[ws.max_row]:
         cell.font = _HEADER_FONT
         cell.fill = _HEADER_FILL
-        cell.alignment = Alignment(horizontal="center")
+        cell.alignment = Alignment(horizontal="center", wrap_text=True)
+
+
+def _fmt(val) -> str | float:
+    if val is None:
+        return "-"
+    if val == float("inf"):
+        return "∞"
+    return round(val, 3)
 
 
 def export(results: StudyResults, network: Network, path: str | Path) -> None:
@@ -28,30 +37,45 @@ def export(results: StudyResults, network: Network, path: str | Path) -> None:
     # ---- Aba Resultados ----
     ws_res = wb.active
     ws_res.title = "Resultados"
+    ws_res.row_dimensions[1].height = 30
     _header_row(ws_res, [
-        "Barra", "Un (kV)", "Ik3'' (kA)", "Ip 3F (kA)",
-        "Ik2'' (kA)", "Ik1'' (kA)", "Ik2E'' (kA)", "κ",
+        "Nível", "Barra", "Un (kV)",
+        "Icc_3φ'' (kA)", "Icc_pico (kA)", "Icc_3φ-g'' (kA)",
+        "Icc_2φ'' (kA)", "Icc_1φ'' (kA)", "Icc_2φ-g'' (kA)", "κ",
     ])
-    for br in results.buses:
-        f3 = br.get_fault("3F")
-        f2 = br.get_fault("2F")
-        f1 = br.get_fault("1F-T")
+
+    buses_mt = [b for b in results.buses if b.un_kv > _MT_THRESHOLD_KV]
+    buses_bt = [b for b in results.buses if b.un_kv <= _MT_THRESHOLD_KV]
+    for br in buses_mt + buses_bt:
+        is_mt = br.un_kv > _MT_THRESHOLD_KV
+        fill = _MT_FILL if is_mt else _BT_FILL
+        f3  = br.get_fault("3F")
+        f3t = br.get_fault("3F-T")
+        f2  = br.get_fault("2F")
+        f1  = br.get_fault("1F-T")
         f2e = br.get_fault("2F-T")
         ws_res.append([
+            "MT" if is_mt else "BT",
             br.node_name,
             round(br.un_kv, 3),
-            round(f3.ik_pp_ka, 3) if f3 else "-",
-            round(f3.ip_ka, 3) if f3 else "-",
-            round(f2.ik_pp_ka, 3) if f2 else "-",
-            round(f1.ik_pp_ka, 3) if f1 else "-",
-            round(f2e.ik_pp_ka, 3) if f2e else "-",
-            round(f3.kappa, 3) if f3 else "-",
+            _fmt(f3.ik_pp_ka   if f3  else None),
+            _fmt(f3.ip_ka      if f3  else None),
+            _fmt(f3t.ik_pp_ka  if f3t else None),
+            _fmt(f2.ik_pp_ka   if f2  else None),
+            _fmt(f1.ik_pp_ka   if f1  else None),
+            _fmt(f2e.ik_pp_ka  if f2e else None),
+            _fmt(f3.kappa      if f3  else None),
         ])
+        for cell in ws_res[ws_res.max_row]:
+            cell.fill = fill
+            cell.alignment = Alignment(horizontal="center")
 
     # ---- Aba Impedâncias ----
     ws_imp = wb.create_sheet("Impedâncias")
     _header_row(ws_imp, [
-        "Barra", "Un (kV)", "R1 (mΩ)", "X1 (mΩ)", "|Z1| (mΩ)", "R0 (mΩ)", "X0 (mΩ)", "|Z0| (mΩ)",
+        "Nível", "Barra", "Un (kV)",
+        "R1 (mΩ)", "X1 (mΩ)", "|Z1| (mΩ)",
+        "R0 (mΩ)", "X0 (mΩ)", "|Z0| (mΩ)",
     ])
     for br in results.buses:
         f3 = br.get_fault("3F")
@@ -59,11 +83,17 @@ def export(results: StudyResults, network: Network, path: str | Path) -> None:
         if f3:
             z1 = f3.z1_ohm * 1000
             z0 = (f1.z0_ohm if f1 else 0+0j) * 1000
+            is_mt = br.un_kv > _MT_THRESHOLD_KV
             ws_imp.append([
+                "MT" if is_mt else "BT",
                 br.node_name, round(br.un_kv, 3),
                 round(z1.real, 4), round(z1.imag, 4), round(abs(z1), 4),
                 round(z0.real, 4), round(z0.imag, 4), round(abs(z0), 4),
             ])
+            fill = _MT_FILL if is_mt else _BT_FILL
+            for cell in ws_imp[ws_imp.max_row]:
+                cell.fill = fill
+                cell.alignment = Alignment(horizontal="center")
 
     # ---- Aba Rede ----
     ws_net = wb.create_sheet("Rede")
