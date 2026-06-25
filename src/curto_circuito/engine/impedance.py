@@ -13,12 +13,12 @@ from ..utils.units import kv_to_v, mva_to_va
 
 def grid_z1(g: GridConnection) -> complex:
     """Impedância de seq. positiva da rede (Ω @ Un_grid)."""
-    return complex(g.z1_r_mohm, g.z1_x_mohm) / 1000.0
+    return complex(g.z1_r_ohm, g.z1_x_ohm)
 
 
 def grid_z0(g: GridConnection) -> complex:
     """Impedância de seq. zero da rede (Ω @ Un_grid)."""
-    return complex(g.z0_r_mohm, g.z0_x_mohm) / 1000.0
+    return complex(g.z0_r_ohm, g.z0_x_ohm)
 
 
 def transformer_z1(t: Transformer) -> complex:

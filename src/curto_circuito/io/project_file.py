@@ -17,7 +17,7 @@ def _comp_to_dict(comp) -> dict | None:
 
 def _migrate_grid(d: dict) -> dict:
     """Converte formato antigo (sk_mva, rx_ratio) para Z1/Z0 (mΩ)."""
-    if "z1_r_mohm" in d:
+    if "z1_r_ohm" in d:
         return d   # já no novo formato
     import math
     sk_mva = d.pop("sk_mva", 0.0)
@@ -30,10 +30,10 @@ def _migrate_grid(d: dict) -> dict:
         r1 = rx_ratio * x1
     else:
         r1, x1 = 0.0, 0.0
-    d["z1_r_mohm"] = round(r1 * 1000, 4)
-    d["z1_x_mohm"] = round(x1 * 1000, 4)
-    d["z0_r_mohm"] = round(r1 * 1000, 4)   # Z0 = Z1 como estimativa
-    d["z0_x_mohm"] = round(x1 * 1000, 4)
+    d["z1_r_ohm"] = round(r1, 6)
+    d["z1_x_ohm"] = round(x1, 6)
+    d["z0_r_ohm"] = round(r1, 6)   # Z0 = Z1 como estimativa
+    d["z0_x_ohm"] = round(x1, 6)
     return d
 
 

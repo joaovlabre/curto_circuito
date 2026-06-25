@@ -10,7 +10,7 @@ from ...models.components import GridConnection
 _SQRT3 = math.sqrt(3)
 
 
-def _sb(lo, hi, suffix, decimals=2, value=0.0) -> QDoubleSpinBox:
+def _sb(lo, hi, suffix, decimals=4, value=0.0) -> QDoubleSpinBox:
     s = QDoubleSpinBox()
     s.setRange(lo, hi)
     s.setSuffix(suffix)
@@ -46,16 +46,16 @@ class GridDialog(QDialog):
         # ---- Impedância Z1 (seq. positiva) ----
         grp_z1 = QGroupBox("Impedância de sequência positiva Z1")
         f_z1 = QFormLayout(grp_z1)
-        self.sb_r1 = _sb(0, 99999, " mΩ", 3, 37.9)
-        self.sb_x1 = _sb(0, 99999, " mΩ", 3, 379.0)
+        self.sb_r1 = _sb(0, 9999, " Ω", 4, 0.0379)
+        self.sb_x1 = _sb(0, 9999, " Ω", 4, 0.3790)
         f_z1.addRow("R1:", self.sb_r1)
         f_z1.addRow("X1:", self.sb_x1)
 
         # ---- Impedância Z0 (seq. zero) ----
         grp_z0 = QGroupBox("Impedância de sequência zero Z0")
         f_z0 = QFormLayout(grp_z0)
-        self.sb_r0 = _sb(0, 99999, " mΩ", 3, 37.9)
-        self.sb_x0 = _sb(0, 99999, " mΩ", 3, 379.0)
+        self.sb_r0 = _sb(0, 9999, " Ω", 4, 0.0379)
+        self.sb_x0 = _sb(0, 9999, " Ω", 4, 0.3790)
         f_z0.addRow("R0:", self.sb_r0)
         f_z0.addRow("X0:", self.sb_x0)
 
@@ -63,14 +63,13 @@ class GridDialog(QDialog):
         grp_calc = QGroupBox("Valores calculados (conferência)")
         f_calc = QFormLayout(grp_calc)
         italic = QFont(); italic.setItalic(True)
-        self.lbl_sk   = QLabel("-"); self.lbl_sk.setFont(italic)
-        self.lbl_icc  = QLabel("-"); self.lbl_icc.setFont(italic)
-        self.lbl_xr   = QLabel("-"); self.lbl_xr.setFont(italic)
-        self.lbl_z1   = QLabel("-"); self.lbl_z1.setFont(italic)
-        self.lbl_ip   = QLabel("-"); self.lbl_ip.setFont(italic)
+        self.lbl_sk  = QLabel("-"); self.lbl_sk.setFont(italic)
+        self.lbl_icc = QLabel("-"); self.lbl_icc.setFont(italic)
+        self.lbl_z1  = QLabel("-"); self.lbl_z1.setFont(italic)
+        self.lbl_xr  = QLabel("-"); self.lbl_xr.setFont(italic)
         f_calc.addRow("Sk'' (MVA):", self.lbl_sk)
         f_calc.addRow("Icc3φ (kA):", self.lbl_icc)
-        f_calc.addRow("|Z1| (mΩ):", self.lbl_z1)
+        f_calc.addRow("|Z1| (Ω):", self.lbl_z1)
         f_calc.addRow("X1/R1:", self.lbl_xr)
 
         buttons = QDialogButtonBox(
@@ -87,13 +86,12 @@ class GridDialog(QDialog):
         layout.addWidget(buttons)
         self.setLayout(layout)
 
-        # atualiza calculados ao mudar Z1 ou Un
         for w in (self.sb_r1, self.sb_x1, self.sb_un):
             w.valueChanged.connect(self._update_computed)
 
     def _update_computed(self) -> None:
-        r1 = self.sb_r1.value() / 1000.0   # mΩ → Ω
-        x1 = self.sb_x1.value() / 1000.0
+        r1 = self.sb_r1.value()
+        x1 = self.sb_x1.value()
         un_kv = self.sb_un.value()
         z1_mag = math.sqrt(r1**2 + x1**2)
         un_v = un_kv * 1e3
@@ -104,7 +102,7 @@ class GridDialog(QDialog):
             xr = x1 / r1 if r1 > 0 else float("inf")
             self.lbl_sk.setText(f"{sk_mva:.1f}")
             self.lbl_icc.setText(f"{icc_ka:.3f}")
-            self.lbl_z1.setText(f"{z1_mag * 1000:.3f}")
+            self.lbl_z1.setText(f"{z1_mag:.4f}")
             self.lbl_xr.setText(f"{xr:.2f}" if xr != float("inf") else "∞")
         else:
             for lbl in (self.lbl_sk, self.lbl_icc, self.lbl_z1, self.lbl_xr):
@@ -114,10 +112,10 @@ class GridDialog(QDialog):
         self.le_id.setText(c.id)
         self.le_name.setText(c.name)
         self.sb_un.setValue(c.un_kv)
-        self.sb_r1.setValue(c.z1_r_mohm)
-        self.sb_x1.setValue(c.z1_x_mohm)
-        self.sb_r0.setValue(c.z0_r_mohm)
-        self.sb_x0.setValue(c.z0_x_mohm)
+        self.sb_r1.setValue(c.z1_r_ohm)
+        self.sb_x1.setValue(c.z1_x_ohm)
+        self.sb_r0.setValue(c.z0_r_ohm)
+        self.sb_x0.setValue(c.z0_x_ohm)
         if c.cmax >= 1.09:
             self.cb_cmax.setCurrentIndex(0)
         else:
@@ -130,10 +128,10 @@ class GridDialog(QDialog):
             id=self.le_id.text(),
             name=self.le_name.text(),
             un_kv=self.sb_un.value(),
-            z1_r_mohm=self.sb_r1.value(),
-            z1_x_mohm=self.sb_x1.value(),
-            z0_r_mohm=self.sb_r0.value(),
-            z0_x_mohm=self.sb_x0.value(),
+            z1_r_ohm=self.sb_r1.value(),
+            z1_x_ohm=self.sb_x1.value(),
+            z0_r_ohm=self.sb_r0.value(),
+            z0_x_ohm=self.sb_x0.value(),
             cmax=cmax,
             cmin=cmin,
         )

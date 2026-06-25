@@ -8,10 +8,10 @@ class GridConnection:
     id: str
     name: str
     un_kv: float           # tensão nominal fase-fase (kV)
-    z1_r_mohm: float       # resistência seq. positiva Z1 (mΩ)
-    z1_x_mohm: float       # reatância seq. positiva Z1 (mΩ)
-    z0_r_mohm: float       # resistência seq. zero Z0 (mΩ)
-    z0_x_mohm: float       # reatância seq. zero Z0 (mΩ)
+    z1_r_ohm: float        # resistência seq. positiva Z1 (Ω)
+    z1_x_ohm: float        # reatância seq. positiva Z1 (Ω)
+    z0_r_ohm: float        # resistência seq. zero Z0 (Ω)
+    z0_x_ohm: float        # reatância seq. zero Z0 (Ω)
     cmax: float = 1.1      # fator de tensão máximo (IEC 60909 Tabela 1)
     cmin: float = 0.95     # fator de tensão mínimo
 

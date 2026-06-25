@@ -10,16 +10,16 @@ from curto_circuito.utils.units import kv_to_v, mva_to_va
 def test_grid_z1_zero_impedance():
     """R1=X1=0 → Z1 nulo (barra infinita)."""
     g = GridConnection(id="G", name="G", un_kv=13.8,
-                       z1_r_mohm=0, z1_x_mohm=0, z0_r_mohm=0, z0_x_mohm=0)
+                       z1_r_ohm=0, z1_x_ohm=0, z0_r_ohm=0, z0_x_ohm=0)
     z = grid_z1(g)
     assert z == complex(0, 0)
 
 
 def test_grid_z1_magnitude():
-    """Z1 armazenado em mΩ deve ser retornado em Ω com parte real e imaginária corretas."""
+    """Z1 armazenado em Ω deve ser retornado diretamente com R e X corretos."""
     g = GridConnection(id="G", name="G", un_kv=13.8,
-                       z1_r_mohm=37.9, z1_x_mohm=379.0,
-                       z0_r_mohm=37.9, z0_x_mohm=379.0)
+                       z1_r_ohm=0.0379, z1_x_ohm=0.3790,
+                       z0_r_ohm=0.0379, z0_x_ohm=0.3790)
     z = grid_z1(g)
     assert z.real == pytest.approx(0.0379, rel=1e-4)
     assert z.imag == pytest.approx(0.3790, rel=1e-4)
@@ -28,8 +28,8 @@ def test_grid_z1_magnitude():
 def test_grid_z0_independent():
     """Z0 deve ser independente de Z1."""
     g = GridConnection(id="G", name="G", un_kv=13.8,
-                       z1_r_mohm=10.0, z1_x_mohm=100.0,
-                       z0_r_mohm=30.0, z0_x_mohm=300.0)
+                       z1_r_ohm=0.010, z1_x_ohm=0.100,
+                       z0_r_ohm=0.030, z0_x_ohm=0.300)
     from curto_circuito.engine.impedance import grid_z0
     z0 = grid_z0(g)
     assert z0.real == pytest.approx(0.030, rel=1e-4)

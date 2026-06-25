@@ -14,11 +14,11 @@ def simple_network():
     net = Network(name="Rede Teste")
 
     # Fonte
-    # Z1 equivalente a Sk''=500 MVA, R/X=0.1 @ 13.8 kV: |Z|=380.9 mΩ, R=37.9 mΩ, X=379.0 mΩ
+    # Z1 equivalente a Sk''=500 MVA, R/X=0.1 @ 13.8 kV: |Z|=0.3809 Ω, R=0.0379 Ω, X=0.3790 Ω
     grid = GridConnection(
         id="GRID1", name="Rede", un_kv=13.8,
-        z1_r_mohm=37.9, z1_x_mohm=379.0,
-        z0_r_mohm=37.9, z0_x_mohm=379.0,
+        z1_r_ohm=0.0379, z1_x_ohm=0.3790,
+        z0_r_ohm=0.0379, z0_x_ohm=0.3790,
     )
     n_grid = NetworkNode(id="GRID1", name="Barra MT", un_kv=13.8, component=grid)
     net.nodes["GRID1"] = n_grid
