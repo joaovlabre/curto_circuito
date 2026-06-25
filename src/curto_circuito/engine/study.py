@@ -1,28 +1,36 @@
 """
 Orquestrador do estudo de curto-circuito (IEC 60909).
-
-run_study() executa todos os passos para cada barra da rede e retorna StudyResults.
 """
 
 from __future__ import annotations
 import datetime
 from ..models.network import Network
 from ..models.results import BusResult, StudyResults
-from ..models.components import GridConnection
-from ..utils.constants import get_c_factors
+from ..models.components import GridConnection, Transformer
+from ..utils.constants import get_c_factors, VECTOR_GROUP_PHASE_SHIFT
 from ..utils.units import refer_impedance
 from . import impedance as imp
 from .reduction import build_z1_thevenin
 from .sequence import build_z0_thevenin
-from .fault_types import fault_3ph, fault_2ph, fault_1ph, fault_2ph_earth, fault_3ph_earth
+from .fault_types import fault_3ph, fault_3ph_earth, fault_2ph, fault_1ph, fault_2ph_earth
 
 
-def run_study(network: Network, use_cmax: bool = True) -> StudyResults:
+def _cumulative_phase_shift(path) -> float:
+    """Soma os deslocamentos de fase dos transformadores no caminho raiz → barra."""
+    total = 0.0
+    for branch, _node in path:
+        if branch is not None and isinstance(branch.component, Transformer):
+            total += VECTOR_GROUP_PHASE_SHIFT.get(branch.component.vector_group, 0.0)
+    return total
+
+
+def run_study(network: Network, use_cmax: bool = True, s_base_mva: float = 100.0) -> StudyResults:
     """
     Executa o estudo de curto-circuito para todas as barras da rede.
 
-    use_cmax=True  → usa cmax (correntes máximas, dimensionamento de equipamentos)
-    use_cmax=False → usa cmin (correntes mínimas, ajuste de proteções)
+    use_cmax=True  → cmax (correntes máximas)
+    use_cmax=False → cmin (correntes mínimas)
+    s_base_mva     → base de potência para conversão p.u.
     """
     if not network.root_node_id:
         raise ValueError("A rede não possui raiz definida (root_node_id vazio)")
@@ -31,7 +39,6 @@ def run_study(network: Network, use_cmax: bool = True) -> StudyResults:
     if root_node is None:
         raise ValueError(f"Nó raiz '{network.root_node_id}' não encontrado")
 
-    # obtém GridConnection da raiz
     grid = root_node.component
     if not isinstance(grid, GridConnection):
         raise TypeError("O nó raiz deve ter um componente GridConnection")
@@ -40,18 +47,15 @@ def run_study(network: Network, use_cmax: bool = True) -> StudyResults:
     c = cmax if use_cmax else cmin
 
     z0_grid = imp.grid_z0(grid)
-
     bus_results: list[BusResult] = []
 
     for node_id in network.all_node_ids_bfs():
         node = network.nodes[node_id]
         path = network.path_to(node_id)
 
-        # Z1 de Thevenin na barra
         z1 = build_z1_thevenin(path, node.un_kv, cmax)
-
-        # Z0 de Thevenin na barra
         z0 = build_z0_thevenin(path, node.un_kv, z0_grid)
+        shift = _cumulative_phase_shift(path)
 
         faults = [
             fault_3ph(c, node.un_kv, z1),
@@ -66,11 +70,13 @@ def run_study(network: Network, use_cmax: bool = True) -> StudyResults:
             node_name=node.name,
             un_kv=node.un_kv,
             faults=faults,
+            phase_shift_deg=shift,
         ))
 
     return StudyResults(
         network_name=network.name,
         timestamp=datetime.datetime.now().isoformat(timespec="seconds"),
         voltage_factor_c=c,
+        s_base_mva=s_base_mva,
         buses=bus_results,
     )

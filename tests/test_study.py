@@ -41,6 +41,20 @@ def test_study_ik2_less_than_ik3(simple_network):
         assert ik2 == pytest.approx(ik3 * math.sqrt(3) / 2, rel=1e-4)
 
 
+def test_study_phase_shift_dyn11(simple_network):
+    """Barra BT deve ter deslocamento de fase acumulado de +30° (trafo Dyn11)."""
+    results = run_study(simple_network)
+    bus_bt = next(b for b in results.buses if b.node_id == "BUS_BT")
+    # conftest usa Dyn11 → +30°
+    assert bus_bt.phase_shift_deg == pytest.approx(30.0, abs=1e-5)
+
+
+def test_study_s_base_stored(simple_network):
+    """s_base_mva passado a run_study deve ser armazenado em StudyResults."""
+    results = run_study(simple_network, s_base_mva=50.0)
+    assert results.s_base_mva == pytest.approx(50.0)
+
+
 def test_study_no_root_raises():
     from curto_circuito.models.network import Network
     net = Network(name="Vazia")

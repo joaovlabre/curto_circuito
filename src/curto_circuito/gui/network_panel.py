@@ -118,7 +118,7 @@ class NetworkPanel(QWidget):
             # nó de chegada (secundário / BT do trafo)
             child_node = NetworkNode(
                 id=f"BUS_{comp.id}",
-                name=f"Barra {comp.name} — {comp.un2_kv} kV (Sec.)",
+                name=f"Barra {comp.name} — {comp.un2_kv:.2f} kV (Sec.)",
                 un_kv=comp.un2_kv,
             )
             self.network.nodes[child_node.id] = child_node

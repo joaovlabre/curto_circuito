@@ -26,3 +26,13 @@ def get_c_factors(un_kv: float) -> tuple[float, float]:
 # Grupos vetoriais que bloqueiam a sequência zero no primário
 # (ex.: D = delta; sem caminho para neutro do lado primário)
 ZERO_SEQ_BLOCKING_PRIMARY = {"D", "d"}
+
+# Deslocamento de fase do secundário em relação ao primário (graus)
+# Sentido positivo: secundário adianta o primário (convencional IEC)
+VECTOR_GROUP_PHASE_SHIFT: dict[str, float] = {
+    "Dyn1":  -30.0,
+    "Dyn11":  30.0,
+    "YNyn0":   0.0,
+    "Yzn11":  30.0,
+    "Dd0":     0.0,
+}

@@ -95,7 +95,7 @@ class DiagramWidget(QGraphicsView):
             )
             self._scene.addItem(node_item)
 
-            txt = QGraphicsTextItem(f"{node.name}\n{node.un_kv:.1f} kV")
+            txt = QGraphicsTextItem(f"{node.name}\n{node.un_kv:.2f} kV")
             txt.setFont(QFont("Arial", 7))
             txt.setPos(x + 4, y + 2)
             txt.setParentItem(node_item)   # move junto com o nó

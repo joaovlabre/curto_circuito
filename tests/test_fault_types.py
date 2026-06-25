@@ -50,6 +50,30 @@ def test_peak_current():
     assert res.ip_ka == pytest.approx(kappa * math.sqrt(2) * res.ik_pp_ka, rel=1e-5)
 
 
+def test_3ph_angle_purely_reactive():
+    """Z puramente reativo → θ = −90°."""
+    z1 = complex(0, 0.05)
+    res = fault_3ph(1.1, 0.4, z1)
+    assert res.angle_deg == pytest.approx(-90.0, abs=1e-5)
+
+
+def test_3ph_angle_purely_resistive():
+    """Z puramente resistivo → θ = 0°."""
+    z1 = complex(0.05, 0)
+    res = fault_3ph(1.1, 0.4, z1)
+    assert res.angle_deg == pytest.approx(0.0, abs=1e-5)
+
+
+def test_1ph_angle():
+    """θ_1F-T = −arg(2*Z1 + Z0)."""
+    z1 = complex(0.01, 0.05)
+    z0 = complex(0.03, 0.15)
+    res = fault_1ph(1.1, 0.4, z1, z0)
+    import cmath
+    expected = -math.degrees(cmath.phase(2 * z1 + z0))
+    assert res.angle_deg == pytest.approx(expected, rel=1e-5)
+
+
 def test_2ph_earth_lower_than_3ph():
     """Ik2E'' geralmente < Ik3'' para sistemas solidamente aterrados."""
     z1 = complex(0.01, 0.05)

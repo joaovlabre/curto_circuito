@@ -21,6 +21,14 @@ def ka_to_a(ka: float) -> float:
     return ka * 1e3
 
 
+def z_to_pu(z_ohm: complex, v_base_kv: float, s_base_mva: float) -> complex:
+    """Converte impedância de Ω para p.u. na base (Vbase, Sbase).
+    Z_base = Vbase² / Sbase
+    """
+    z_base = kv_to_v(v_base_kv)**2 / mva_to_va(s_base_mva)
+    return z_ohm / z_base
+
+
 def z_from_sk(un_kv: float, sk_mva: float, rx_ratio: float) -> complex:
     """Impedância da rede a partir de Sk'' e razão R/X (em ohms)."""
     if sk_mva == 0:

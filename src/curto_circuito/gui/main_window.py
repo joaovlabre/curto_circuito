@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 from PyQt6.QtWidgets import (
     QMainWindow, QSplitter, QStatusBar, QToolBar, QMessageBox,
-    QFileDialog, QCheckBox, QWidget, QVBoxLayout,
+    QFileDialog, QCheckBox, QWidget, QVBoxLayout, QDoubleSpinBox, QLabel,
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
@@ -72,7 +72,17 @@ class MainWindow(QMainWindow):
         act_pdf = QAction("PDF", self)
         act_pdf.triggered.connect(self._export_pdf)
 
+        self._sb_sbase = QDoubleSpinBox()
+        self._sb_sbase.setRange(1.0, 99999.0)
+        self._sb_sbase.setSuffix(" MVA")
+        self._sb_sbase.setDecimals(1)
+        self._sb_sbase.setValue(100.0)
+        self._sb_sbase.setToolTip("Potência de base para conversão p.u.")
+
         tb.addAction(act_run)
+        tb.addSeparator()
+        tb.addWidget(QLabel("Sbase:"))
+        tb.addWidget(self._sb_sbase)
         tb.addSeparator()
         tb.addAction(act_excel)
         tb.addAction(act_pdf)
@@ -144,7 +154,7 @@ class MainWindow(QMainWindow):
                 # atualiza o nó secundário com nova tensão/nome se mudou
                 sec_node = self._network.nodes[branch.to_node_id]
                 sec_node.un_kv = new_comp.un2_kv
-                sec_node.name = f"Barra {new_comp.name} — {new_comp.un2_kv} kV (Sec.)"
+                sec_node.name = f"Barra {new_comp.name} — {new_comp.un2_kv:.2f} kV (Sec.)"
         elif isinstance(branch.component, Cable):
             dlg = CableDialog(branch.component, parent=self)
             if dlg.exec():
@@ -181,7 +191,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Rede vazia", "Adicione uma conexão de rede antes de executar o estudo.")
             return
         self.statusBar().showMessage("Executando estudo...")
-        self._worker = StudyWorker(self._network, use_cmax)
+        self._worker = StudyWorker(self._network, use_cmax, s_base_mva=self._sb_sbase.value())
         self._worker.result_ready.connect(self._on_study_done)
         self._worker.error.connect(self._on_study_error)
         self._worker.start()
