@@ -66,9 +66,9 @@ def export(results: StudyResults, path: str | Path) -> None:
 
     header = [
         "Nível", "Barra", "Un\n(kV)",
-        "Icc_3φ''\n(kA)", "Icc_pico\n(kA)", "Icc_3φ-g''\n(kA)",
-        "Icc_2φ''\n(kA)", "Icc_1φ''\n(kA)", "Icc_2φ-g''\n(kA)", "κ",
-        "θ_3φ\n(°)", "Desl.\n(°)",
+        "Icc3φ\n(kA)", "Icc pico\n(kA)", "Icc3φ-g\n(kA)",
+        "Icc2φ\n(kA)", "Icc1φ\n(kA)", "Icc2φ-g\n(kA)", "κ",
+        "θ3φ\n(°)", "Desl.\n(°)",
     ]
     rows = [header]
     row_colors = []

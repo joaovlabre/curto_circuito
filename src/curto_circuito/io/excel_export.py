@@ -43,9 +43,9 @@ def export(results: StudyResults, network: Network, path: str | Path) -> None:
     ws_res.row_dimensions[1].height = 30
     _header_row(ws_res, [
         "Nível", "Barra", "Un (kV)",
-        "Icc_3φ'' (kA)", "Icc_pico (kA)", "Icc_3φ-g'' (kA)",
-        "Icc_2φ'' (kA)", "Icc_1φ'' (kA)", "Icc_2φ-g'' (kA)", "κ",
-        "θ_3φ (°)", "Desl. (°)",
+        "Icc3φ (kA)", "Icc pico (kA)", "Icc3φ-g (kA)",
+        "Icc2φ (kA)", "Icc1φ (kA)", "Icc2φ-g (kA)", "κ",
+        "θ3φ (°)", "Desl. (°)",
     ])
 
     buses_mt = [b for b in results.buses if b.un_kv > _MT_THRESHOLD_KV]
@@ -110,7 +110,7 @@ def export(results: StudyResults, network: Network, path: str | Path) -> None:
     _header_row(ws_pu, [
         "Nível", "Barra", "Un (kV)",
         "|Z1| (p.u.)", "|Z0| (p.u.)",
-        "θ_3φ (°)", "θ_2φ (°)", "θ_1φ (°)", "θ_2φ-g (°)",
+        "θ3φ (°)", "θ2φ (°)", "θ1φ (°)", "θ2φ-g (°)",
         "Desl. (°)",
     ])
     for br in buses_mt + buses_bt:
