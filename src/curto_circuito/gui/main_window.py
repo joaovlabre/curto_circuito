@@ -9,12 +9,17 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
 
-from ..models.network import Network
+from ..models.network import Network, Branch
+from ..models.components import GridConnection, Transformer, Cable, Busbar
 from ..models.results import StudyResults
 from .network_panel import NetworkPanel
 from .diagram_widget import DiagramWidget
 from .results_panel import ResultsPanel
 from .workers import StudyWorker
+from .dialogs.grid_dialog import GridDialog
+from .dialogs.transformer_dialog import TransformerDialog
+from .dialogs.cable_dialog import CableDialog
+from .dialogs.busbar_dialog import BusbarDialog
 from ..io import project_file, excel_export, pdf_export
 
 
@@ -81,8 +86,10 @@ class MainWindow(QMainWindow):
 
         self._net_panel = NetworkPanel(self._network)
         self._net_panel.network_changed.connect(self._on_network_changed)
+        self._net_panel.edit_requested.connect(self._edit_component)
 
         self._diagram = DiagramWidget()
+        self._diagram.edit_requested.connect(self._edit_component)
 
         h_split.addWidget(self._net_panel)
         h_split.addWidget(self._diagram)
@@ -99,6 +106,69 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------ #
     # Slots                                                                #
     # ------------------------------------------------------------------ #
+
+    # ------------------------------------------------------------------ #
+    # Edição de componentes                                               #
+    # ------------------------------------------------------------------ #
+
+    def _find_incoming_branch(self, node_id: str) -> Branch | None:
+        for branch in self._network.branches:
+            if branch.to_node_id == node_id:
+                return branch
+        return None
+
+    def _edit_component(self, node_id: str) -> None:
+        node = self._network.nodes.get(node_id)
+        if node is None:
+            return
+
+        branch = self._find_incoming_branch(node_id)
+
+        # Determina o que editar e qual diálogo abrir
+        if branch is None:
+            # Nó raiz — edita o GridConnection
+            comp = node.component
+            if not isinstance(comp, GridConnection):
+                return
+            dlg = GridDialog(comp, parent=self)
+            if dlg.exec():
+                new_comp = dlg.get_component()
+                node.component = new_comp
+                node.name = new_comp.name
+                node.un_kv = new_comp.un_kv
+        elif isinstance(branch.component, Transformer):
+            dlg = TransformerDialog(branch.component, parent=self)
+            if dlg.exec():
+                new_comp = dlg.get_component()
+                branch.component = new_comp
+                # atualiza o nó secundário com nova tensão/nome se mudou
+                sec_node = self._network.nodes[branch.to_node_id]
+                sec_node.un_kv = new_comp.un2_kv
+                sec_node.name = f"Barra {new_comp.name} — {new_comp.un2_kv} kV (Sec.)"
+        elif isinstance(branch.component, Cable):
+            dlg = CableDialog(branch.component, parent=self)
+            if dlg.exec():
+                new_comp = dlg.get_component()
+                branch.component = new_comp
+                dest_node = self._network.nodes[branch.to_node_id]
+                dest_node.un_kv = new_comp.un_kv
+        else:
+            # Busbar (cabo fictício de barra)
+            comp = node.component
+            if isinstance(comp, Busbar):
+                dlg = BusbarDialog(comp, parent=self)
+                if dlg.exec():
+                    new_comp = dlg.get_component()
+                    node.component = new_comp
+                    node.name = new_comp.name
+                    node.un_kv = new_comp.un_kv
+            return
+
+        self._net_panel.refresh_tree()
+        self._diagram.render_network(self._network)
+        self._results_panel.clear()
+        self._results = None
+        self.statusBar().showMessage(f"Componente '{node.name}' atualizado.")
 
     def _on_network_changed(self) -> None:
         self._diagram.render_network(self._network)

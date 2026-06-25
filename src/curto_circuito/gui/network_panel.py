@@ -22,6 +22,7 @@ def _new_id() -> str:
 
 class NetworkPanel(QWidget):
     network_changed = pyqtSignal()
+    edit_requested = pyqtSignal(str)   # node_id
 
     def __init__(self, network: Network, parent=None) -> None:
         super().__init__(parent)
@@ -53,6 +54,7 @@ class NetworkPanel(QWidget):
         self.tree.setHeaderLabel("Rede Elétrica")
         self.tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.tree.customContextMenuRequested.connect(self._context_menu)
+        self.tree.itemDoubleClicked.connect(self._on_double_click)
 
         layout.addWidget(toolbar)
         layout.addWidget(self.tree)
@@ -209,8 +211,17 @@ class NetworkPanel(QWidget):
         self.refresh_tree()
         self.network_changed.emit()
 
+    def _on_double_click(self, item: QTreeWidgetItem, _col: int) -> None:
+        node_id = item.data(0, Qt.ItemDataRole.UserRole)
+        if node_id:
+            self.edit_requested.emit(node_id)
+
     def _context_menu(self, pos) -> None:
         menu = QMenu(self)
+        node_id = self._selected_node_id()
+        if node_id:
+            menu.addAction("Editar...", lambda: self.edit_requested.emit(node_id))
+            menu.addSeparator()
         menu.addAction("+ Transformador", self._add_transformer)
         menu.addAction("+ Cabo", self._add_cable)
         menu.addAction("Remover", self._remove_selected)

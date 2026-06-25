@@ -1,0 +1,97 @@
+{
+  "name": "Novo Projeto",
+  "root_node_id": "GRID1",
+  "nodes": [
+    {
+      "id": "GRID1",
+      "name": "Rede Concessionária",
+      "un_kv": 13.8,
+      "component": {
+        "id": "GRID1",
+        "name": "Rede Concessionária",
+        "un_kv": 13.8,
+        "sk_mva": 500.0,
+        "rx_ratio": 0.1,
+        "cmax": 1.1,
+        "cmin": 1.0,
+        "_type": "GridConnection"
+      }
+    },
+    {
+      "id": "BUS1",
+      "name": "Barra 1",
+      "un_kv": 13.8,
+      "component": {
+        "id": "BUS1",
+        "name": "Barra 1",
+        "un_kv": 13.8,
+        "description": "",
+        "_type": "Busbar"
+      }
+    },
+    {
+      "id": "BUS_T1",
+      "name": "Barra Transformador 1 — 0.38 kV (Sec.)",
+      "un_kv": 0.38,
+      "component": null
+    },
+    {
+      "id": "BUS_T2",
+      "name": "Barra Transformador 2 — 0.38 kV (Sec.)",
+      "un_kv": 0.38,
+      "component": null
+    }
+  ],
+  "branches": [
+    {
+      "id": "BR_BUS1",
+      "from_node_id": "GRID1",
+      "to_node_id": "BUS1",
+      "component": {
+        "id": "DUMMY_BUS1",
+        "name": "Conexão",
+        "un_kv": 13.8,
+        "r1_ohm_km": 0,
+        "x1_ohm_km": 0,
+        "r0_ohm_km": 0,
+        "x0_ohm_km": 0,
+        "length_m": 1,
+        "_type": "Cable"
+      }
+    },
+    {
+      "id": "BR_T1",
+      "from_node_id": "BUS1",
+      "to_node_id": "BUS_T1",
+      "component": {
+        "id": "T1",
+        "name": "Transformador 1",
+        "sn_mva": 1.0,
+        "un1_kv": 13.8,
+        "un2_kv": 0.38,
+        "z_pct": 4.0,
+        "pk_kw": 0.0,
+        "vector_group": "Dyn1",
+        "grounding": "solid",
+        "_type": "Transformer"
+      }
+    },
+    {
+      "id": "BR_T2",
+      "from_node_id": "BUS1",
+      "to_node_id": "BUS_T2",
+      "component": {
+        "id": "T2",
+        "name": "Transformador 2",
+        "sn_mva": 2.0,
+        "un1_kv": 13.8,
+        "un2_kv": 0.38,
+        "z_pct": 4.0,
+        "pk_kw": 0.0,
+        "vector_group": "Dyn1",
+        "grounding": "solid",
+        "_type": "Transformer"
+      }
+    }
+  ]
+}
